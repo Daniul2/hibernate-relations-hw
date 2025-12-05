@@ -22,43 +22,45 @@ public class Main {
         ActorService actorService = new ActorServiceImpl(sessionFactory);
         MovieService movieService = new MovieServiceImpl(sessionFactory);
 
-        System.out.println("--- Етап 1: Створення початкових даних ---");
+        System.out.println("--- Stage 1: Initial Data Creation ---");
         Country usa = new Country("USA");
         countryService.add(usa);
+
         Actor vinDiesel = new Actor("Vin Diesel");
         vinDiesel.setCountry(usa);
         actorService.add(vinDiesel);
 
         Movie fastAndFurious = new Movie("Fast and Furious");
         fastAndFurious.setActors(new ArrayList<>(List.of(vinDiesel)));
-        movieService.add(fastAndFurious);
 
-        Movie retrievedMovie = movieService.get(fastAndFurious.getId());
-        System.out.println("Створено фільм: " + retrievedMovie);
-        System.out.println("Актори у фільмі: " + retrievedMovie.getActors());
+        Movie savedMovie = movieService.add(fastAndFurious);
+
+        Movie retrievedMovie = movieService.get(savedMovie.getId());
+        System.out.println("Created movie: " + retrievedMovie);
+        System.out.println("Actors in movie: " + retrievedMovie.getActors());
         System.out.println("-------------------------------------------\n");
 
-
-        System.out.println("--- Етап 2: Додавання нового актора до існуючого фільму ---");
+        System.out.println("--- Stage 2: Adding a new Actor to the existing movie ---");
         Country uk = new Country("UK");
         countryService.add(uk);
+
         Actor jasonStatham = new Actor("Jason Statham");
         jasonStatham.setCountry(uk);
         actorService.add(jasonStatham);
 
-        Movie movieToUpdate = movieService.get(fastAndFurious.getId());
+        Movie movieToUpdate = movieService.get(savedMovie.getId());
         movieToUpdate.getActors().add(jasonStatham);
         movieService.add(movieToUpdate);
 
-        System.out.println("Додано нового актора: " + jasonStatham);
+        System.out.println("Added a new actor: " + jasonStatham);
         System.out.println("-------------------------------------------\n");
 
-
-        System.out.println("--- Етап 3: Фінальна перевірка ---");
-        Movie finalMovie = movieService.get(fastAndFurious.getId());
-        System.out.println("Остаточний стан фільму: " + finalMovie);
-        System.out.println("Усі актори у фільмі: " + finalMovie.getActors());
-        System.out.println("Очікувана кількість акторів: 2. Фактична: " + finalMovie.getActors().size());
+        System.out.println("--- Stage 3: Final consistency check ---");
+        Movie finalMovie = movieService.get(savedMovie.getId());
+        System.out.println("Final movie state: " + finalMovie);
+        System.out.println("Actors in final list: " + finalMovie.getActors());
+        System.out.println("Expected actors count: 2. Actual: "
+                + finalMovie.getActors().size());
 
         sessionFactory.close();
     }
